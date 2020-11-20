@@ -3,6 +3,7 @@
 import pygame
 import pygame_menu
 from pygame.locals import*
+from jeu_jeu import*
 
 X = 800
 Y = 600
@@ -25,8 +26,7 @@ def option():
     menu.mainloop(surface)
 
 def start():
-    pass
-    #import jeu_debut
+    mainloop(fenetre, position)   #import jeu_debut
 
 menu = pygame_menu.Menu(Y, X, 'RPGPT', theme=pygame_menu.themes.THEME_DARK)
 menu.add_text_input('Name :', default='THE DOUZEUR')
