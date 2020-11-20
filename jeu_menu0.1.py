@@ -4,40 +4,35 @@ import pygame
 import pygame_menu
 from pygame.locals import*
 
+X = 800
+Y = 600
 pygame.init()
-surface = pygame.display.set_mode((600, 400))
+surface = pygame.display.set_mode((X, Y))
+
 def set_difficulty(value, difficulty):
     pass
+
+def option():
+    def set_resolution(value, resolution):
+        name, index = value
+        print("Change résolution to : ", name)
+        X = resolution[0]
+        Y = resolution[1]
+        surface_option = pygame.display.set_mode((X,Y))
+    surface_option = pygame.display.set_mode((X,Y))
+    menu_option = pygame_menu.Menu(Y, X, 'RPGPT')
+    menu.add_selector('Affichage :', [('720 x 480',(720,480)),('720 x 576',(720,576)),('1280 x 720',(1280,720)),('1280 x 1024',(1280,1024)),('1920 x 1080',(1920,1080))], onchange = set_resolution)
+    menu.mainloop(surface)
+
 def start():
-    fenetre = pygame.display.set_mode((600,400))
-    fond = pygame.image.load('background_test.jpg').convert()
-    fenetre.blit(fond, (0,0))
-    perso = pygame.image.load('perso_test.png').convert_alpha()
-    position = perso.get_rect()
-    fenetre.blit(perso, position)
-    pygame.display.flip()
-    pygame.key.set_repeat(400,30)
-    continuer = 1
-    while continuer:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                continuer = 0
-            if event.type == KEYDOWN:
-                if event.key == K_DOWN:
-                    position = position.move(0,5)
-                if event.key == K_UP:
-                    position = position.move(0,-5)
-                if event.key == K_RIGHT:
-                    position = position.move(5,0)
-                if event.key == K_LEFT:
-                    position = position.move(-5,0)
-        fenetre.blit(fond, (0,0))
-        fenetre.blit(perso, position)
-        pygame.display.flip()
-menu = pygame_menu.Menu(400, 600, 'RPGPT',
-                       theme=pygame_menu.themes.THEME_DARK)
-menu.add_text_input('Name :', default='DOUZE')
-menu.add_selector('Difficulty :', [('Hard', 1), ('Easy', 2), ('Normal', 3)], onchange=set_difficulty)
+    pass
+    #import jeu_debut
+
+menu = pygame_menu.Menu(Y, X, 'RPGPT', theme=pygame_menu.themes.THEME_DARK)
+menu.add_text_input('Name :', default='THE DOUZEUR')
+menu.add_selector('Difficulty :', [('Hard', 3), ('Easy', 2), ('Normal', 1)], onchange=set_difficulty)
+menu.add_vertical_margin(100)
 menu.add_button('Play', start)
+menu.add_button('Option', option)
 menu.add_button('Quit', pygame_menu.events.EXIT)
 menu.mainloop(surface)
