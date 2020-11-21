@@ -27,6 +27,8 @@ def mainloop(fenetre,position):
                     position = position.move(5,0)
                 if pygame.key.get_pressed()[pygame.K_q]:
                     position = position.move(-5,0)
+                if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                    pygame.quit()
         fenetre.blit(fond, (0,0))
         fenetre.blit(perso, position)
         pygame.display.flip()
