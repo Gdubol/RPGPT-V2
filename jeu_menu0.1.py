@@ -2,7 +2,8 @@
 ####################
 import pygame
 import pygame_menu
-from pygame.locals import*
+from pygame.locals import *
+form jeu_jeu import *
 
 def getParam(param, file):
     f = open("{0}.txt".format(file), "r")
