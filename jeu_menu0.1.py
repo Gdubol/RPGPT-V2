@@ -2,8 +2,7 @@
 ####################
 import pygame
 import pygame_menu
-from pygame.locals import *
-form jeu_jeu import *
+from pygame.locals import*
 
 def getParam(param, file):
     f = open("{0}.txt".format(file), "r")
@@ -90,8 +89,9 @@ def option():
     menu_option.mainloop(surface)
 
 def start():
-    pass
-    #import jeu_debut
+    pygame_menu.events.EXIT
+    import jeu_jeu
+    exec(open("jeu_jeu.py").read())
 
 menu = pygame_menu.Menu(Y, X, 'RPGPT', theme = Mytheme)
 menu.add_text_input('Name :', default='THE DOUZEUR')
