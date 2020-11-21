@@ -11,7 +11,6 @@ fenetre.blit(perso, position)
 pygame.display.flip()
 pygame.key.set_repeat(400,30)
 
-
 def mainloop(fenetre,position):
     global perso, fond          #tres moche trouver une autre solution
     continuer = 1
@@ -31,5 +30,5 @@ def mainloop(fenetre,position):
         fenetre.blit(fond, (0,0))
         fenetre.blit(perso, position)
         pygame.display.flip()
-        
-     
+
+mainloop(fenetre,position)
