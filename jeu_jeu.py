@@ -2,54 +2,6 @@
 import pygame
 from pygame.locals import*
 import time
-# fenetre = pygame.display.set_mode((600,400))
-# fond = pygame.image.load('background_test.jpg').convert()
-# rock = pygame.image.load('rock.png').convert()
-# perso = Player()
-# position = perso.get_rect()
-# pos_rock = rock.get_rect()
-# fenetre.blit(fond, (0,0))
-# fenetre.blit(rock, (50,50))
-# fenetre.blit(perso, position)
-# pygame.display.flip() #mettre à jour la fenetre
-# pygame.key.set_repeat(400,30)
-#
-# def fct_inventaire():
-#     fond_inventaire = pygame.image.load('inventaire.png').convert()
-#     fenetre.blit(fond_inventaire, (0,0))
-#
-# def mainloop(fenetre,position):
-#     global perso, fond, rock        #tres moche trouver une autre solution
-#     continuer = 1
-#     while continuer:
-#         for event in pygame.event.get():
-#             if event.type == QUIT:
-#                 continuer = 0
-#                 pygame.quit()
-#                 print("Fermeture du jeu")
-#             if event.type == KEYDOWN:
-#                 if pygame.key.get_pressed()[pygame.K_s]:
-#                     position = position.move(0,5)
-#                 if pygame.key.get_pressed()[pygame.K_z]:
-#                     position = position.move(0,-5)
-#                 if pygame.key.get_pressed()[pygame.K_d]:
-#                     position = position.move(5,0)
-#                 if pygame.key.get_pressed()[pygame.K_q]:
-#                     position = position.move(-5,0)
-#                 if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-#                     pygame.quit()
-#                 if pygame.key.get_pressed()[pygame.K_i]:
-#                     fond = pygame.image.load('inventaire.png').convert()
-#                     fenetre.blit(fond, (0,0))
-#                     #fct_inventaire()
-#
-#
-#         fenetre.blit(fond, (0,0))
-#         fenetre.blit(rock, (50,50))
-#         fenetre.blit(perso, position)
-#         pygame.display.flip()
-#
-# mainloop(fenetre,position)
 
 pygame.init()
 
@@ -62,6 +14,9 @@ class Game:
 
 #classe pour le test projectile
 class Projectile(pygame.sprite.Sprite):
+    #comme on sera en point de vue du dessus je pensais rajouter une fonction qui lance des choses
+    #si on fait pop des mobs sur la map on peut les fight en leur lancant des règles, stylo, colle (en mode cours Agoutin)
+    #ça peut être fun de faire ça
 
     def __init__(self, player): #on récupère les infos joueur dans le constructeur
         super().__init__()
@@ -72,24 +27,30 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = player.rect.x - 60
         self.rect.y = player.rect.y - 18
-        self.origin_image = self.image
-        self.angle = 0
+        self.origin_image = self.image #on crée une image résiduel pour pouvoir la modifier en la tournant après
+        self.angle = 0 #on déf l'angle de base pour le 'rotate'
 
+    #pour faire tourner les projectiles
     def rotate(self):
         self.angle += 12
-        self.image = pygame.transform.rotozoom(self.origin_image, self.angle, 1)
+        self.image = pygame.transform.rotozoom(self.origin_image, self.angle, 1) #rotozoom bb
         self.rect = self.image.get_rect(center = self.rect.center)
 
+    #pour virer les projectiles qui sortent de l'écran
     def remove(self):
         self.player.all_projectiles.remove(self)
 
+    #pour faire bouger les projectiles (Note : dans l'idéal faire une fonction qui bouge par rapport à un vecteur dans la direction de la souris)
     def move(self):
-        self.rect.x -= self.vitesse
-        self.rotate()
-        time.sleep(0.0001)
+        self.rect.x -= self.vitesse #reglage de la vitesse (déjà au minimum d'ailleurs et c'est trop rapide à mon goût ce qui m'a obligé à faire l'histoire du time.sleep projectiles)
+        self.rotate() #pour faire des projectiles tournant pcq c'est plus fun
+        time.sleep(0.0001) #slow pour les projectiles et plus on en tire moins ils vont vite
+
         #penser à vérifier qu'il est plus sur l'écran pour le détruire
         if self.rect.x < 0:
             self.remove()
+
+
 #classe pour le perso du joueur
 class Player(pygame.sprite.Sprite):
 
@@ -101,6 +62,7 @@ class Player(pygame.sprite.Sprite):
         self.max_health = 144 #cap max en cas de recup de vie par exemple
         self.attack = 12 #attack de base du perso
 
+        #le set du groupe de projectiles pour qu'on en ai plusieurs en même temps
         self.all_projectiles = pygame.sprite.Group()
 
         #vitesse de l'image du perso
@@ -136,7 +98,7 @@ background = pygame.image.load('background_test.jpg') #importation du background
 game = Game() #initialisation du "game." pour la classe Game
 player = Player() #initialisation du "player." pour la classe Player
 
-perso_default = game.player.image_gauche
+perso_default = game.player.image_gauche #initialisation pour changer le sens du perso
 
 running = True
 while running:  #boucle infinie
@@ -174,10 +136,10 @@ while running:  #boucle infinie
             game.player.move_up()
         if pygame.key.get_pressed()[pygame.K_d] and game.player.rect.x + game.player.rect.width < background.get_width() :
             game.player.move_right()
-            perso_default = game.player.image_droite
+            perso_default = game.player.image_droite #met le perso vers la droite
         if pygame.key.get_pressed()[pygame.K_q] and game.player.rect.x > 0:
             game.player.move_left()
-            perso_default = game.player.image_gauche
+            perso_default = game.player.image_gauche #met le perso vers la gauche
         if pygame.key.get_pressed()[pygame.K_SPACE]: #touche projectiles
             game.player.lancement_projectile()
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
