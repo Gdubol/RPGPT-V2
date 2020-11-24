@@ -107,8 +107,10 @@ class Player(pygame.sprite.Sprite):
         self.speed = 10
 
         #bordel du perso et de son affichage
-        self.image = pygame.image.load('perso_test.png') #importer image perso
-        self.rect = self.image.get_rect() #récup sa position sous forme d'un carré qui prend ses dimensions
+        self.image_gauche = pygame.image.load('perso_test_gauche.png') #importer image perso
+        self.image_droite = pygame.image.load('perso_test_droite.png')
+        self.rect = self.image_gauche.get_rect() #récup sa position sous forme d'un carré qui prend ses dimensions
+        #self.rect = self.image_droite.get_rect()
         self.rect.x = 250 #positionnement du perso
         self.rect.y = 250
 
@@ -134,10 +136,12 @@ background = pygame.image.load('background_test.jpg') #importation du background
 game = Game() #initialisation du "game." pour la classe Game
 player = Player() #initialisation du "player." pour la classe Player
 
+perso_default = game.player.image_gauche
+
 running = True
 while running:  #boucle infinie
     screen.blit(background, (0,0)) #mettre le fond
-    screen.blit(game.player.image, game.player.rect) #appliquer l'image du joueur
+    screen.blit(perso_default, game.player.rect) #appliquer l'image du joueur
 
     #afficher les projectiles sur l'écran
     for projectile in game.player.all_projectiles:
@@ -170,8 +174,10 @@ while running:  #boucle infinie
             game.player.move_up()
         if pygame.key.get_pressed()[pygame.K_d] and game.player.rect.x + game.player.rect.width < background.get_width() :
             game.player.move_right()
+            perso_default = game.player.image_droite
         if pygame.key.get_pressed()[pygame.K_q] and game.player.rect.x > 0:
             game.player.move_left()
+            perso_default = game.player.image_gauche
         if pygame.key.get_pressed()[pygame.K_SPACE]: #touche projectiles
             game.player.lancement_projectile()
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
