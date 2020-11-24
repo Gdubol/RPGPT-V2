@@ -57,7 +57,7 @@ def set_difficulty(value, difficulty):
 
 def option():
 
-    def set_resolution(value, resolution):
+    def set_resolution(value, resolution): 
         pass
         # name, index = value
         # print("Change résolution to : ", name)
