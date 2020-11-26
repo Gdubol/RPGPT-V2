@@ -20,6 +20,28 @@ player = Player() #initialisation du "player." pour la classe Player
 perso_default = game.player.image_gauche #initialisation pour changer le sens du perso
 
 
+#Pour récupérer les positions des cases autour du perso on fait :
+#   "game.player.rect.x"        Donne les coord x de la gauche du rectangle du perso
+#   "game.player.rect.y"        Donne les coord y du haut du rectangle du perso
+#   "game.player.rect.x + 80"   Donne les coord x de la droite du rectangle du perso
+#   "game.player.rect.y + 60"   Donne les coord y du bas du rectangle du perso
+#
+#Création de la liste pour les cases de collision :
+#
+#               HAUT = 0
+#              _________
+#             /         /
+# GAUCHE = 3  /         /   DROITE = 1
+#             /         /
+#              _________
+#               BAS = 2
+
+# LCollision =    [
+#                     [ (game.player.rect.x, game.player.rect.y), (game.player.rect.x + 1, game.player.rect.y), (game.player.rect.x + 2, game.player.rect.y)                  ],
+#                     [ (game.player.rect.x + 80, game.player.rect.y), (game.player.rect.x + 80, game.player.rect.y + 1), (game.player.rect.x + 80, game.player.rect.y + 2)   ],
+#                     [ (game.player.rect.x, game.player.rect.y + 60), (game.player.rect.x + 1, game.player.rect.y + 60), (game.player.rect.x + 2, game.player.rect.y + 60)   ],
+#                     [ (game.player.rect.x, game.player.rect.y), (game.player.rect.x, game.player.rect.y + 1), (game.player.rect.x, game.player.rect.y + 2)                  ]
+#                 ]
 
 
 running = True
@@ -66,18 +88,32 @@ while running:  #boucle infinie
     #     if game.player.rect.collidepoint(case):
     #         game.player.rect =
 
-#Pour récupérer les positions des cases autour du perso on fait :
-#   "game.player.rect.x"        Donne les coord x de la gauche du rectangle du perso
-#   "game.player.rect.y"        Donne les coord y du haut du rectangle du perso
-#   "game.player.rect.x + 80"   Donne les coord x de la droite du rectangle du perso
-#   "game.player.rect.y + 60"   Donne les coord y du bas du rectangle du perso
+#faut créer la liste des cases autour du perso, on va l'actualiser dès qu'on bouge en appuyant sur une touche
 
     for event in pygame.event.get():
 
-        #conditions de déplacement :
-        
-        Dpc_down = (    pygame.key.get_pressed()[pygame.K_s] == True and
-                        game.player.rect.y + game.player.rect.height < t_pxl*len(map1)
+        #Conditions de déplacement :
+
+        Dpc_up =    (
+                    pygame.key.get_pressed()[pygame.K_z] == True and
+                    game.player.rect.y > 0
+
+                    )
+
+        Dpc_down = (
+                    pygame.key.get_pressed()[pygame.K_s] == True and
+                    game.player.rect.y + game.player.rect.height < t_pxl*len(map1)
+                    )
+
+        Dpc_right = (
+                    pygame.key.get_pressed()[pygame.K_d] == True and
+                    game.player.rect.x + game.player.rect.width < t_pxl*len(map1[0]) and
+                    game.player.rect.collidepoint(L_case_mur[2]) == False  #### JAI FAIS UN PEU DE LA MERDE DONC ON VA UTILISER LE .collidepoint QUI EST MILLE FOIS MIEUX
+                    )
+
+        Dpc_left =  (
+                    pygame.key.get_pressed()[pygame.K_q] == True and
+                    game.player.rect.x > 0
                     )
 
 
@@ -90,24 +126,33 @@ while running:  #boucle infinie
         # elif event.type == pygame.KEYUP:
         #     game.pressed[event.key] = False
 
-#utilisation des Touches pour le déplacements et les interractions
+#Utilisation des Touches pour le déplacements et les interractions
+#Se réferer aux options données au dessus
 
-        if  Dpc_down : #t_pxl est la variable pour le taille des pixels / c'est pour empêcher le perso de sortir de la fenêtre ici (Note = à gérer plus tard pour les collision avec les objets)
-            game.player.move_down()
-
-        if pygame.key.get_pressed()[pygame.K_z] and game.player.rect.y > 0:
+        if Dpc_up :
             game.player.move_up()
+            # LCollision[0] = [(game.player.rect.x, game.player.rect.y), (game.player.rect.x + 1, game.player.rect.y), (game.player.rect.x + 2, game.player.rect.y)]
 
-        if pygame.key.get_pressed()[pygame.K_d] and game.player.rect.x + game.player.rect.width < t_pxl*len(map1[0]) : #t_pxl est la variable pour le taille des pixels
+        if  Dpc_down :
+            game.player.move_down()
+            # LCollision[1] = [(game.player.rect.x + 80, game.player.rect.y), (game.player.rect.x + 80, game.player.rect.y + 1), (game.player.rect.x + 80, game.player.rect.y + 2)]
+
+        if Dpc_right :
             game.player.move_right()
-            perso_default = game.player.image_droite #met le perso vers la droite
+            perso_default = game.player.image_droite #tourne le perso vers la droite
+            # LCollision[2] = [(game.player.rect.x, game.player.rect.y + 60), (game.player.rect.x + 1, game.player.rect.y + 60), (game.player.rect.x + 2, game.player.rect.y + 60)]
 
-        if pygame.key.get_pressed()[pygame.K_q] and game.player.rect.x > 0:
+        # if pygame.key.get_pressed()[pygame.K_g]: #touche projectiles
+        #     print(LCollision[2])
+            # print(L_case_mur)
+
+        if Dpc_left :
             game.player.move_left()
-            perso_default = game.player.image_gauche #met le perso vers la gauche
+            perso_default = game.player.image_gauche #tourne le perso vers la gauche
+            # LCollision[3] = [(game.player.rect.x, game.player.rect.y), (game.player.rect.x, game.player.rect.y + 1), (game.player.rect.x, game.player.rect.y + 2)]
 
         if pygame.key.get_pressed()[pygame.K_SPACE]: #touche projectiles
-            game.player.lancement_projectile()
+            game.player.lancement_projectile() #lancement du projectile PUTES
 
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             exec(open("jeu_menu0.1.py").read()) #femer le jeu et rouvre le menu (Note : à utiliser plus tard dans le menu Echap, avec un "Retour au Menu Principale")
