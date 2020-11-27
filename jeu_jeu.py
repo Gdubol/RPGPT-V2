@@ -19,7 +19,6 @@ player = Player() #initialisation du "player." pour la classe Player
 
 perso_default = game.player.image_gauche #initialisation pour changer le sens du perso
 
-
 #Pour récupérer les positions des cases autour du perso on fait :
 #   "game.player.rect.x"        Donne les coord x de la gauche du rectangle du perso
 #   "game.player.rect.y"        Donne les coord y du haut du rectangle du perso
@@ -42,15 +41,39 @@ perso_default = game.player.image_gauche #initialisation pour changer le sens du
 #                     [ (game.player.rect.x, game.player.rect.y + 60), (game.player.rect.x + 1, game.player.rect.y + 60), (game.player.rect.x + 2, game.player.rect.y + 60)   ],
 #                     [ (game.player.rect.x, game.player.rect.y), (game.player.rect.x, game.player.rect.y + 1), (game.player.rect.x, game.player.rect.y + 2)                  ]
 #                 ]
+# Au final le game.player.rect donne les positions de tout le rectangle du perso donc c'est beaucoup plus rapide
 
+
+# On print la map une première fois pour récupérer les listes pour les conditions
+# Pour plusieurs map faudra faire 4 listes par map, et trouver un moyen de switch les listes dans les conditions de déplacement en fonction de la map où on est
+for i in range(0, len(map1[0])):
+    var1 = t_pxl*i
+    for j in range(0, len(map1)):
+        var2 = t_pxl*j
+        if map1[j][i] == 1: #c'est une case_sol donc on va afficher une case sol ici
+            screen.blit(case_sol, (var1, var2))
+        if map1[j][i] == 2: #c'est une case_mur donc on va afficher une case mur ici
+            screen.blit(case_mur, (var1, var2))
+            # En gros, on créé des listes de <rect()> centré en certaine valeur pour faire des réctangles qui dépasse de chaque côté left / right / up / down
+            # Pour que quand on arrive sur la case juste avant le mur, on bloque la touche qui permet d'aller dans la direction du mur ce qui empêche de traverser le mur
+            # Y a juste un soucis, les déplacements glitch parfois et on se retrouve avec un nombre plus multiple de 20 pour les coord du perso, donc il peut traverser la moitié du mur des fois
+            # Pour régler ça faudrait réussir à régler le problème des déplacements
+            L_case_mur_right.append( case_mur.get_rect( center = ( var1, var2 ) ) )
+            L_case_mur_left.append( case_mur.get_rect( center = ( var1 + 20, var2) ) )
+            L_case_mur_up.append( case_mur.get_rect( center = ( var1 + 10, var2 + 20 ) ) )
+            L_case_mur_down.append( case_mur.get_rect( center = ( var1 +10, var2 - 20 ) ) )
+
+#Test des listes pour les collisions
+# print(L_case_mur_right)
+# print(L_case_mur_left)
+# print(L_case_mur_up)
+# print(L_case_mur_down)
 
 running = True
 while running:  #boucle infinie
 
     #en toute logique le fond (donc la map doit se mettre ici)
-    #on va tester d'afficher le fond avec une boucle for case par case 10pxl par 10 pxl
-    # print(map1) #pour test
-    # print(len(map1)) #toujours un test
+    #on va tester d'afficher le fond avec une boucle for case par case 10 pxl par 10 pxl
 
     for i in range(0, len(map1[0])):
         var1 = t_pxl*i
@@ -60,9 +83,6 @@ while running:  #boucle infinie
                 screen.blit(case_sol, (var1, var2))
             if map1[j][i] == 2: #c'est une case_mur donc on va afficher une case mur ici
                 screen.blit(case_mur, (var1, var2))
-                L_case_mur.append((var1, var2))
-
-
 
     #### screen.blit(background, (0,0)) #mettre le fond #on cache ça pour le moment pour le test
 
@@ -76,7 +96,8 @@ while running:  #boucle infinie
 
     # game.all_monsters.draw(screen) #dessine les monstres test
 
-    # if game.pressed.get(pygame.K_d):  #pour l'alternative des touches encore, pour les conditions de déplacements
+    #pour l'alternative des touches encore, pour les conditions de déplacements
+    # if game.pressed.get(pygame.K_d):   #touche d appuyée
     #     game.player.move_right()
     # elif game.pressed.get(pygame.K_q):
     #     game.player.move_left()
@@ -88,32 +109,37 @@ while running:  #boucle infinie
     #     if game.player.rect.collidepoint(case):
     #         game.player.rect =
 
-#faut créer la liste des cases autour du perso, on va l'actualiser dès qu'on bouge en appuyant sur une touche
+    #faut créer la liste des cases autour du perso, on va l'actualiser dès qu'on bouge en appuyant sur une touche
 
     for event in pygame.event.get():
 
         #Conditions de déplacement :
 
+        # = game.player.rect
+
         Dpc_up =    (
                     pygame.key.get_pressed()[pygame.K_z] == True and
-                    game.player.rect.y > 0
+                    game.player.rect.y > 0 and
+                    game.player.rect.collidelist(L_case_mur_up) < 0
 
                     )
 
         Dpc_down = (
                     pygame.key.get_pressed()[pygame.K_s] == True and
-                    game.player.rect.y + game.player.rect.height < t_pxl*len(map1)
+                    game.player.rect.y + game.player.rect.height < t_pxl*len(map1) and
+                    game.player.rect.collidelist(L_case_mur_down) < 0
                     )
 
         Dpc_right = (
                     pygame.key.get_pressed()[pygame.K_d] == True and
                     game.player.rect.x + game.player.rect.width < t_pxl*len(map1[0]) and
-                    game.player.rect.collidepoint(L_case_mur[2]) == False  #### JAI FAIS UN PEU DE LA MERDE DONC ON VA UTILISER LE .collidepoint QUI EST MILLE FOIS MIEUX
+                    game.player.rect.collidelist(L_case_mur_right) < 0
                     )
 
         Dpc_left =  (
                     pygame.key.get_pressed()[pygame.K_q] == True and
-                    game.player.rect.x > 0
+                    game.player.rect.x > 0 and
+                    game.player.rect.collidelist(L_case_mur_left) < 0
                     )
 
 
@@ -126,8 +152,8 @@ while running:  #boucle infinie
         # elif event.type == pygame.KEYUP:
         #     game.pressed[event.key] = False
 
-#Utilisation des Touches pour le déplacements et les interractions
-#Se réferer aux options données au dessus
+        #Utilisation des Touches pour le déplacements et les interractions
+        #Se réferer aux options données au dessus
 
         if Dpc_up :
             game.player.move_up()
@@ -142,7 +168,9 @@ while running:  #boucle infinie
             perso_default = game.player.image_droite #tourne le perso vers la droite
             # LCollision[2] = [(game.player.rect.x, game.player.rect.y + 60), (game.player.rect.x + 1, game.player.rect.y + 60), (game.player.rect.x + 2, game.player.rect.y + 60)]
 
-        # if pygame.key.get_pressed()[pygame.K_g]: #touche projectiles
+        if pygame.key.get_pressed()[pygame.K_g]: #touche de test
+            print('12')
+
         #     print(LCollision[2])
             # print(L_case_mur)
 
