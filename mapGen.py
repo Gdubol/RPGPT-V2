@@ -34,9 +34,11 @@ def loadMap(screen, tileMap, imgDict):
     """
     for x in range(len(tileMap)):
         for y in range(len(tileMap[0])):
-            pos = (x*vars.TILESIZE,y*vars.TILESIZE)
+            pos = (y*vars.TILESIZE,x*vars.TILESIZE)
             imgDir = imgDict.get(tileMap[x][y])
-            screen.blit(imgDir, pos)
+            tileImg = pygame.image.load(imgDir).convert()
+            # tileImg = pygame.transform.scale(tileImg, (4, 4))
+            screen.blit(tileImg, pos)
     return None
 
 def disp(mat):
